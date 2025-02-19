@@ -215,4 +215,58 @@ class StudentController extends Controller
             'data' => $student
         ]);
     }
+
+
+    public function EditStudentAPI(Request $request){
+
+        
+
+        $student = Student::find($request->id);
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found',
+            ], 404);
+        }else{
+            Student::where('id',$student->id)->update([
+                'name' => $request->name,
+                'email' => $request->email,
+            ]);
+    
+            StudentQualification::where('student_id',$student->id)->update([
+                'qualification' => $request->qualification,
+            ]);
+    
+            StudentCourse::where('student_id',$student->id)->update([
+                'course_id' => $request->course,
+            ]);
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Student updated successfully',
+                'data' => $student
+            ]);
+        }
+
+        
+    }
+
+    public function GetStudentAPI($id){
+
+        $student = Student::find($id);
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found',
+            ], 404);
+        }else{
+            return response()->json([
+                'success' => true,
+                'message' => 'Student fetched successfully',
+                'data' => $student
+            ]);
+        }
+    }
 }
