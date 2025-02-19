@@ -9,6 +9,7 @@ use App\Models\StudentQualification;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class StudentController extends Controller
 {
@@ -49,124 +50,159 @@ class StudentController extends Controller
 
     public function AddStudent(Request $request){
 
-        $validate = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:students',
-            'qualification' => 'required',
-            'course' => 'required',
-        ],[
-            'name.required' => 'Name is required',
-            'email.required' => 'Email is required',
-            'email.email' => 'Email is not valid',
-            'email.unique' => 'Email already exists',
-            'qualification.required' => 'Qualification is required',
-            'course.required' => 'Course is required',
-        ]);
-
-        $student = new Student();
-
-        $student->name = $request->name;
-        $student->email = $request->email;
-        $student->isActive = 1;
-        $student->save();
-
-        $qualification = new StudentQualification();
-        $qualification->student_id = $student->id;
-        $qualification->qualification = $request->qualification;
-        $qualification->save();
-
-        $studentCourse = new StudentCourse();
-        $studentCourse->student_id = $student->id;
-        $studentCourse->course_id = $request->course;
-        $studentCourse->save();
-
-        return redirect('/')->with('message','Student added successfully');
+        try{
+            $validate = $request->validate([
+                'name' => 'required',
+                'email' => 'required|email|unique:students',
+                'qualification' => 'required',
+                'course' => 'required',
+            ],[
+                'name.required' => 'Name is required',
+                'email.required' => 'Email is required',
+                'email.email' => 'Email is not valid',
+                'email.unique' => 'Email already exists',
+                'qualification.required' => 'Qualification is required',
+                'course.required' => 'Course is required',
+            ]);
+    
+            $student = new Student();
+    
+            $student->name = $request->name;
+            $student->email = $request->email;
+            $student->isActive = 1;
+            $student->save();
+    
+            $qualification = new StudentQualification();
+            $qualification->student_id = $student->id;
+            $qualification->qualification = $request->qualification;
+            $qualification->save();
+    
+            $studentCourse = new StudentCourse();
+            $studentCourse->student_id = $student->id;
+            $studentCourse->course_id = $request->course;
+            $studentCourse->save();
+    
+            return redirect('/')->with('message','Student added successfully');
+        }catch(ValidationException $e){
+            throw $e;
+        }catch(Exception $e){
+            return redirect()->back()->with('error','Something went wrong');
+        }
+        
     }
 
     public function EditStudentView($id){
 
-        $student = Student::find($id);
+        try{
+            $student = Student::find($id);
 
-        $courses = Course::orderby('id','desc')->get();
+            $courses = Course::orderby('id','desc')->get();
 
-        return view('editView',compact('student','courses'));
+            return view('editView',compact('student','courses'));
+
+        }catch(Exception $e){
+            return redirect()->back()->with('error','Something went wrong');
+        }
+
+        
     }
 
     public function EditStudent(Request $request){
-
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'qualification' => 'required',
-            'course' => 'required',
-        ],[
-            'name.required' => 'Name is required',
-            'email.required' => 'Email is required',
-            'email.email' => 'Email is not valid',
-            'qualification.required' => 'Qualification is required',
-            'course.required' => 'Course is required',
-        ]);
-
-
-        Student::where('id',$request->id)->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
-
-        StudentQualification::where('student_id',$request->id)->update([
-            'qualification' => $request->qualification,
-        ]);
-
-        StudentCourse::where('student_id',$request->id)->update([
-            'course_id' => $request->course,
-        ]);
-
-        return redirect('/')->with('message','Student updated successfully');
-
-
+        
+        try{
+            $request->validate([
+                'name' => 'required',
+                'email' => 'required|email',
+                'qualification' => 'required',
+                'course' => 'required',
+            ],[
+                'name.required' => 'Name is required',
+                'email.required' => 'Email is required',
+                'email.email' => 'Email is not valid',
+                'qualification.required' => 'Qualification is required',
+                'course.required' => 'Course is required',
+            ]);
+    
+    
+            Student::where('id',$request->id)->update([
+                'name' => $request->name,
+                'email' => $request->email,
+            ]);
+    
+            StudentQualification::where('student_id',$request->id)->update([
+                'qualification' => $request->qualification,
+            ]);
+    
+            StudentCourse::where('student_id',$request->id)->update([
+                'course_id' => $request->course,
+            ]);
+    
+            return redirect('/')->with('message','Student updated successfully');
+        }catch(ValidationException $e){
+            throw $e;
+        }catch(Exception $e){
+            return redirect()->back()->with('error','Something went wrong');
+        }
+        
     }
 
     public function DeleteStudent(Request $request)
     {
-        
 
-        $id = $request->id;
+        try{
+            $id = $request->id;
 
-        $student = Student::find($id);
-            if ($student) {
+            $student = Student::find($id);
+                if ($student) {
 
-        $student->qualifications()->delete();
+                    $student->qualifications()->delete();
 
-        $student->courses()->detach();
+                     $student->courses()->detach();
 
-        $student->delete();
+                    $student->delete();
 
-        return redirect('/')->with('message', 'Course deleted successfully');
-    }
+                    return redirect('/')->with('message', 'Course deleted successfully');
+                }
+        }catch(Exception $e){
+            return redirect()->back()->with('error','Something went wrong');
+        }
     
     }
 
     public function AnotherCourse(Request $request){
 
-        $studentCourse = new StudentCourse();
-        $studentCourse->student_id = $request->id;
-        $studentCourse->course_id = $request->course;
-        $studentCourse->save();
+        try{
 
-        return redirect('/')->with('message','Course added successfully');
+            $studentCourse = new StudentCourse();
+            $studentCourse->student_id = $request->id;
+            $studentCourse->course_id = $request->course;
+            $studentCourse->save();
 
-
+            return redirect('/')->with('message','Course added successfully');
+        }catch(Exception $e){
+            return redirect()->back()->with('error','Something went wrong');
+        }
     }
 
     public function ViewStudentsAPI(){
 
-        $students = Student::orderby('id','desc')->paginate(10);
+        try{
+            $students = Student::orderby('id','desc')->paginate(10);
 
         return response()->json([
             'success' => true,
             'message' => 'Students fetched successfully',
             'data' => $students
         ]);
+
+        }catch(Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+
+        
     }
 
     public function AddStudentAPI(Request $request){
