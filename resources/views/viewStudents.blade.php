@@ -13,7 +13,7 @@
             <a href="{{ url('/createView') }}" class="btn btn-primary">Add Students</a>
             <a href="{{ url('/viewCourses') }}" class="btn btn-primary">View Courses</a>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-6">
         <form action="{{ url('/') }}" method="GET">
             <input class="form-control mb-2" type="text" name="search" placeholder="Search by name" >
             <button class="btn btn-primary" type="submit" value="{{ request()->search ?? $search }}">Search</button>
@@ -22,7 +22,7 @@
       
 
       @if (session()->has('message'))
-          <div class="col-md-4">
+          <div class="col-md-6">
             <div class="alert alert-success alert-dismissible" role="alert">
                 <h6 class="alert-heading d-flex align-items-center mb-1">Completed:</h6>
                 <p class="mb-0">{{ session()->get('message') }}</p>
@@ -33,7 +33,7 @@
       @endif
 
       @foreach ($errors->all() as $error)
-          <div class="col-md-4">
+          <div class="col-md-6">
               <div class="alert alert-danger alert-dismissible" role="alert">
                   <h6 class="alert-heading d-flex align-items-center mb-1">Error!!</h6>
                     <p class="mb-0">{{ $error }}</p>
