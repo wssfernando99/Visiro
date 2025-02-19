@@ -17,7 +17,9 @@ class StudentController extends Controller
 
             $students = Student::where('isActive',1)->paginate(10);
 
-            return view('viewStudents',compact('students'));
+            $courses = Course::orderby('id','desc')->get();
+
+            return view('viewStudents',compact('students','courses'));
 
         }catch (Exception $e) {
 
@@ -114,11 +116,33 @@ class StudentController extends Controller
 
     public function DeleteStudent(Request $request)
     {
-        Student::where('id',$request->id)->update([
-            'isActive' => 0,
-        ]);
+        
 
-        return redirect('/')->with('message','Student deleted successfully');
+        $id = $request->id;
+
+        $student = Student::find($id);
+            if ($student) {
+
+        $student->qualifications()->delete();
+
+        $student->courses()->detach();
+
+        $student->delete();
+
+        return redirect('/')->with('message', 'Course deleted successfully');
+    }
     
+    }
+
+    public function AnotherCourse(Request $request){
+
+        $studentCourse = new StudentCourse();
+        $studentCourse->student_id = $request->id;
+        $studentCourse->course_id = $request->course;
+        $studentCourse->save();
+
+        return redirect('/')->with('message','Course added successfully');
+
+
     }
 }
