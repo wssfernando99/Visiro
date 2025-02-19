@@ -156,4 +156,15 @@ class StudentController extends Controller
 
 
     }
+
+    public function ViewStudentsAPI(){
+
+        $students = Student::orderby('id','desc')->paginate(10);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Students fetched successfully',
+            'data' => $students
+        ]);
+    }
 }
