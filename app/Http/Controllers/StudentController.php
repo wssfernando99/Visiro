@@ -53,6 +53,7 @@ class StudentController extends Controller
 
         $student->name = $request->name;
         $student->email = $request->email;
+        $student->isActive = 1;
         $student->save();
 
         $qualification = new StudentQualification();
