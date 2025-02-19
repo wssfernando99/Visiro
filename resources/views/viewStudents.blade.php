@@ -12,8 +12,13 @@
         <div class="col-md-12 mb-3 d-flex justify-content-between">
             <a href="{{ url('/createView') }}" class="btn btn-primary">Add Students</a>
             <a href="{{ url('/viewCourses') }}" class="btn btn-primary">View Courses</a>
-          </div>
-
+        </div>
+        <div class="col-md-5">
+        <form action="{{ url('/') }}" method="GET">
+            <input class="form-control mb-2" type="text" name="search" placeholder="Search by name" >
+            <button class="btn btn-primary" type="submit" value="{{ request()->search ?? $search }}">Search</button>
+        </form> 
+        </div>
       
 
       @if (session()->has('message'))

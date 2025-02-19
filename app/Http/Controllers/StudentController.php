@@ -11,15 +11,26 @@ use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
-    public function ViewStudents(){
+    public function ViewStudents(Request $request){
 
         try{
 
-            $students = Student::where('isActive',1)->paginate(10);
+            $search = $request->search;
+
+            $students = Student::orderby('id','desc');
 
             $courses = Course::orderby('id','desc')->get();
 
-            return view('viewStudents',compact('students','courses'));
+            if($search){
+                $students = $students->where(function($query) use ($search){
+                    $query->where('name','like','%'.$search.'%');
+                    
+                });
+            }
+
+            $students = $students->paginate(10);
+
+            return view('viewStudents',compact('students','courses','search'));
 
         }catch (Exception $e) {
 
