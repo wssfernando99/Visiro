@@ -8,6 +8,7 @@ use App\Models\StudentCourse;
 use App\Models\StudentQualification;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
@@ -48,7 +49,7 @@ class StudentController extends Controller
 
     public function AddStudent(Request $request){
 
-        $request->validate([
+        $validate = $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:students',
             'qualification' => 'required',
@@ -165,6 +166,53 @@ class StudentController extends Controller
             'success' => true,
             'message' => 'Students fetched successfully',
             'data' => $students
+        ]);
+    }
+
+    public function AddStudentAPI(Request $request){
+
+        $validate = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|email|unique:students',
+            'qualification' => 'required',
+            'course' => 'required',
+        ],[
+            'name.required' => 'Name is required',
+            'email.required' => 'Email is required',
+            'email.email' => 'Email is not valid',
+            'email.unique' => 'Email already exists',
+            'qualification.required' => 'Qualification is required',
+            'course.required' => 'Course is required',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validate->errors()
+            ], 422);
+        }
+
+        $student = new Student();
+        $student->name = $request->name;
+        $student->email = $request->email;
+        $student->isActive = 1;
+        $student->save();
+
+        $qualification = new StudentQualification();
+        $qualification->student_id = $student->id;
+        $qualification->qualification = $request->qualification;
+        $qualification->save();
+
+        $studentCourse = new StudentCourse();
+        $studentCourse->student_id = $student->id;
+        $studentCourse->course_id = $request->course;
+        $studentCourse->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Student added successfully',
+            'data' => $student
         ]);
     }
 }
