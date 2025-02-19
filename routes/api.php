@@ -12,5 +12,6 @@ Route::get('/students', [StudentController::class, 'ViewStudentsAPI']);
 Route::post('/addStudent', [StudentController::class, 'AddStudentAPI']);
 Route::put('/editStudent', [StudentController::class, 'EditStudentAPI']);
 Route::get('/getStudent/{id}', [StudentController::class, 'GetStudentAPI']);
+Route::delete('/deleteStudent/{id}', [StudentController::class, 'DeleteStudentAPI']);
 
 

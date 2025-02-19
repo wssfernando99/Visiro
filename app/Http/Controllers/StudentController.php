@@ -269,4 +269,29 @@ class StudentController extends Controller
             ]);
         }
     }
+
+    public function DeleteStudentAPI(Request $request){
+
+        $student = Student::find($request->id);
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found',
+            ], 404);
+        }else{
+
+            $student->qualifications()->delete();
+
+            $student->courses()->detach();
+
+            $student->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Student deleted successfully',
+                'data' => $student
+            ]);
+        }
+    }    
 }
